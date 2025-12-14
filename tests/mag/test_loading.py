@@ -13,23 +13,9 @@ from hermpy.mag import load_between_dates
 class Test_Loading(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Download two example data files
-        cls.download_dir = Path("./.tests/")
+        cls.test_data_dir = Path("./tests/data/")
 
-        if not cls.download_dir.exists():
-            os.mkdir(cls.download_dir)
-
-        urls = [
-            "https://pds-ppi.igpp.ucla.edu/data/mess-mag-calibrated/data/mso/2011/091_120_APR/MAGMSOSCI11113_V08.TAB",
-            "https://pds-ppi.igpp.ucla.edu/data/mess-mag-calibrated/data/mso/2011/091_120_APR/MAGMSOSCI11114_V08.TAB",
-        ]
-        paths = [cls.download_dir / url.split("/")[-1] for url in urls]
-        for url, path in zip(urls, paths):
-            # If the path already exists, we don't need to re-download.
-            if path.exists():
-                continue
-
-            download_with_progress_bar(url, path)
+        print(cls.test_data_dir)
 
     def test_single_file_loading(self):
         """
@@ -37,73 +23,49 @@ class Test_Loading(unittest.TestCase):
         """
 
         data = load_between_dates(
-            self.download_dir,
-            TimeRange("2011-04-23 12:00", "2011-04-23 13:00"),
+            self.test_data_dir,
+            TimeRange("2011-04-23 00:00", "2011-04-23 00:01"),
             average=None,  # Testing full res data
+            aberrate=False,  # We must implement testing of aberration. We would need the spice kernels which makes things tricky
         )
 
         # Check length is correct
-        assert len(data) == 71992
+        # This file was shortened to the first 10 rows manually
+        assert len(data) == 10
 
         # Just check the first row
         r = data.iloc[0]
 
-        # Check aberration angle
-        assert math.isclose(r["Aberration Angle"], 0.098313, abs_tol=0.000001)
-
-        # Check position was aberrated
-        assert math.isclose(r["X MSM' (radii)"], 1.19386, abs_tol=0.00001)
+        # Check position is correct
+        assert math.isclose(r["X MSM (radii)"], 0.986832, abs_tol=0.00001)
 
         # Check position was converted from MSO to MSM
-        assert math.isclose(r["Z MSM (radii)"], -6.53362, abs_tol=0.00001)
-        assert math.isclose(r["Z MSM' (radii)"], -6.53362, abs_tol=0.00001)
+        assert math.isclose(r["Z MSM (radii)"], -6.504103, abs_tol=0.00001)
 
         # Check MAG is correct
-        assert math.isclose(r["Bx'"], -5.65442, abs_tol=0.00001)
+        assert math.isclose(r["Bx"], -7.179, abs_tol=0.001)
 
         # This data is missing, and should throw an error
         with self.assertRaises(FileNotFoundError):
             load_between_dates(
-                self.download_dir,
+                self.test_data_dir,
                 TimeRange("2011-06-23 12:00", "2011-06-23 13:00"),
-                average=None,  # Testing full res data
+                average=None,
+                aberrate=False,
             )
 
     def test_loading_across_files(self):
+        """Test if we can load data across multiple files"""
+
         data = load_between_dates(
-            self.download_dir,
-            TimeRange("2011-04-23 12:00", "2011-04-24 12:00"),
-            average=None,  # Testing full res data
+            self.test_data_dir,
+            TimeRange("2011-04-23 00:00", "2011-04-24 23:59"),
+            average=None,
+            aberrate=False,
         )
 
-        assert len(data) == 1727902
-
-
-def download_with_progress_bar(url: str, path: Path) -> None:
-    """
-    Downloads file from url: str to path: Path with a progress bar.
-    """
-
-    response = urllib.request.urlopen(url)
-    file_size = int(response.getheader("Content-Length").strip())
-
-    with (
-        open(path, "wb") as file,
-        tqdm(
-            desc=f"Downloading: {url.split('/')[-1]}",
-            total=file_size,
-            unit="B",
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as bar,
-    ):
-        while True:
-            chunk = response.read(1024)
-            if not chunk:
-                break
-
-            file.write(chunk)
-            bar.update(len(chunk))
+        # Again, these files were manually shortened
+        assert len(data) == 20
 
 
 if __name__ == "__main__":
