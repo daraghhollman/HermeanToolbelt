@@ -1,11 +1,8 @@
 import math
-import os
 import unittest
-import urllib.request
 from pathlib import Path
 
 from sunpy.time import TimeRange
-from tqdm import tqdm
 
 from hermpy.mag import load_between_dates
 
@@ -14,8 +11,6 @@ class Test_Loading(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.test_data_dir = Path("./tests/data/")
-
-        print(cls.test_data_dir)
 
     def test_single_file_loading(self):
         """
