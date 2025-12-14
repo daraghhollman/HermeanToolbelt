@@ -1,7 +1,7 @@
 import datetime as dt
 import multiprocessing
 from functools import cache
-from typing import Iterable, Sequence, Union
+from typing import Iterable, Sequence
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +13,6 @@ from sunpy.time import TimeRange
 from tqdm import tqdm
 
 import hermpy.trajectory as traj
-from hermpy.boundaries import boundaries
 from hermpy.typing import DateLike, DateOrDates
 from hermpy.utils import Constants
 
@@ -152,7 +151,6 @@ def compute_mercury_position(et: float) -> float:
 def get_heliocentric_distances_parallel(
     dates: list[dt.datetime], processes: int | None = None
 ) -> np.ndarray:
-
     ets = to_et_batch(dates)
     with multiprocessing.Pool(processes or multiprocessing.cpu_count()) as pool:
         distances = pool.map(compute_mercury_position, ets)
@@ -380,13 +378,9 @@ def get_trajectory(
     """
 
     dates = time_range.split(steps)
-    spice_times = spice.str2et(
-        [date.strftime("%Y-%m-%d %H:%M:%S") for date in dates]
-    )
+    spice_times = spice.str2et([date.strftime("%Y-%m-%d %H:%M:%S") for date in dates])
 
-    positions, _ = spice.spkpos(
-        spacecraft, spice_times, "BC_MSO", "NONE", "MERCURY"
-    )
+    positions, _ = spice.spkpos(spacecraft, spice_times, "BC_MSO", "NONE", "MERCURY")
 
     if aberrate:
         # Precompute aberration angles
@@ -418,9 +412,7 @@ def get_trajectory(
     return positions
 
 
-def aberate_position(
-    position: list[float], date: dt.datetime | dt.date
-):
+def aberate_position(position: list[float], date: dt.datetime | dt.date):
     """Rotate the spacecraft coordinates into the aberrated coordinate system.
 
 
@@ -724,9 +716,7 @@ def get_nearest_appoapses(
 
     if plot:
         plt.plot(times, altitudes)
-        plt.scatter(
-            np.array(times)[peak_indices], np.array(altitudes)[peak_indices]
-        )
+        plt.scatter(np.array(times)[peak_indices], np.array(altitudes)[peak_indices])
         plt.axvline(time)
         plt.show()
 

@@ -7,7 +7,6 @@ import matplotlib.patches
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
-import spiceypy as spice
 
 from hermpy.utils import Constants
 
@@ -516,9 +515,7 @@ def add_tick_ephemeris(
 
         if "range" in include:
             position = trajectory.get_position("MESSENGER", date)
-            distance = np.sqrt(
-                position[0] ** 2 + position[1] ** 2 + position[2] ** 2
-            )
+            distance = np.sqrt(position[0] ** 2 + position[1] ** 2 + position[2] ** 2)
             # Convert from km to radii
             distance /= Constants.MERCURY_RADIUS_KM
 
@@ -570,9 +567,7 @@ def add_tick_ephemeris(
             local_time = ((longitude + 180) * 24 / 360) % 24
             hours = int(local_time)
             minutes = int((local_time * 60) % 60)
-            datetime = dt.datetime(
-                year=1, month=1, day=1, hour=hours, minute=minutes
-            )
+            datetime = dt.datetime(year=1, month=1, day=1, hour=hours, minute=minutes)
             tick_format += "\n" + f"{datetime:%H:%M}"
 
         if "Heliocentric Distance" in include:
