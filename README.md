@@ -1,3 +1,5 @@
+MOVED TO https://github.com/daraghhollman/hermpy
+
 # HERMPY - A tool-belt for space science at Mercury
 
 Tools for aiding in the handling of data and the creation of publication ready
