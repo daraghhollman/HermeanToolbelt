@@ -241,7 +241,7 @@ def Get_Position(
         # There are data gaps in the kernels?
         # We need to test for this
         try:
-            position, _ = spice.spkpos(spacecraft, et, "BC_MSO", "NONE", "MERCURY")
+            position, _ = spice.spkpos(spacecraft, et, "MSGR_MSO", "NONE", "MERCURY")
 
             match frame:
                 case "MSO":
@@ -395,7 +395,7 @@ def Get_Trajectory(
         )
 
         positions, _ = spice.spkpos(
-            spacecraft, spice_times, "BC_MSO", "NONE", "MERCURY"
+            spacecraft, spice_times, "MSGR_MSO", "NONE", "MERCURY"
         )
 
         if aberrate:
@@ -561,7 +561,7 @@ def Get_Range_From_Date(
         for date in dates:
             et = spice.str2et(date.strftime("%Y-%m-%d %H:%M:%S"))
 
-            position, _ = spice.spkpos(spacecraft, et, "BC_MSO", "NONE", "MERCURY")
+            position, _ = spice.spkpos(spacecraft, et, "MSGR_MSO", "NONE", "MERCURY")
 
             distance = np.sqrt(position[0] ** 2 + position[1] ** 2 + position[2] ** 2)
             distances.append(distance)
@@ -626,7 +626,7 @@ def Get_All_Apoapsis_In_Range(
         while current_time < end_time:
             # Get current altitude
             et = spice.str2et(current_time.strftime("%Y-%m-%d %H:%M:%S"))
-            position, _ = spice.spkpos(spacecraft, et, "BC_MSO", "NONE", "MERCURY")
+            position, _ = spice.spkpos(spacecraft, et, "MSGR_MSO", "NONE", "MERCURY")
             current_altitude = np.sqrt(
                 position[0] ** 2 + position[1] ** 2 + position[2] ** 2
             )
@@ -760,7 +760,7 @@ def Get_Nearest_Apoapsis(
         while current_time < search_end:
             # Get current altitude
             et = spice.str2et(current_time.strftime("%Y-%m-%d %H:%M:%S"))
-            position, _ = spice.spkpos(spacecraft, et, "BC_MSO", "NONE", "MERCURY")
+            position, _ = spice.spkpos(spacecraft, et, "MSGR_MSO", "NONE", "MERCURY")
             current_altitude = np.sqrt(
                 position[0] ** 2 + position[1] ** 2 + position[2] ** 2
             )
